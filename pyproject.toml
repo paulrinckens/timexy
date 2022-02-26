@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "timexy"
-version = "0.1.0"
+version = "0.1.1"
 description = "A spaCy custom component that extracts and normalizes dates and other temporal expressions"
 authors = ["Paul Rinckens"]
 maintainers = ["Paul Rinckens"]
