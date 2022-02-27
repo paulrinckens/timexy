@@ -5,7 +5,7 @@ import traceback
 from collections import OrderedDict
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Dict, Iterable, Tuple, Union
+from typing import Any, Dict, Iterable, List, Tuple, Union
 
 import srsly
 from spacy.language import Language
@@ -35,6 +35,9 @@ def make_timexy(
 
 
 class Timexy:
+
+    MAX_LEN_PATTERN = 5
+
     def __init__(
         self,
         nlp: Language,
@@ -86,7 +89,58 @@ class Timexy:
                 )
 
     def __call__(self, doc: Doc) -> Doc:
-        # Plain Regex for DATES
+        spans_to_add = self.date_matches(doc) + self.duration_matches(doc)
+
+        # Create entities for all gathered spans
+        for span in spans_to_add:
+
+            # ignore match if there is an overlapping entity of another type
+            if (
+                any(
+                    t.ent_type and t.ent_type_ != self.label
+                    for t in doc[span.start : span.end]
+                )
+                and not self.overwrite
+            ):
+                continue
+
+            # if overlapping entities due to multiple matched date patterns,
+            # keep entity with longest span and dump others
+            if any(t.ent_type for t in doc[span.start : span.end]):
+
+                # Only look for overlaps +- 5 tokens to left and right as there are no
+                # date patterns consisting of more than 5 tokens
+                span_ents = doc[
+                    max(0, span.start - self.MAX_LEN_PATTERN) : min(
+                        span.end + self.MAX_LEN_PATTERN, len(doc)
+                    )
+                ].ents
+                overlap_ents = [
+                    e
+                    for e in span_ents
+                    if span.start_char < e.end_char and span.end_char > e.start_char
+                ]
+                timexy_overlap_ents = [
+                    e for e in overlap_ents if e.label_ == self.label
+                ]
+
+                # If overlapping entities of other label, overwrite
+                # If overlapping entities with timexy label, only overwrite if span is longer than existing
+                if all(len(e) <= len(span) for e in timexy_overlap_ents):
+                    doc.ents = [e for e in doc.ents if e not in overlap_ents] + [span]
+            else:
+                try:
+                    doc.ents += (span,)
+                except Exception:
+                    self.logger.error(
+                        f"Unable to set entity {span.text} with offset ({span.start},{span.end}). Skipping this entity."
+                    )
+                    self.logger.error(traceback.format_exc())
+
+        return doc
+
+    def date_matches(self, doc: Doc) -> List[Span]:
+        spans = []
         for regex in self.date_regexes:
             for m in regex[0].finditer(doc.text):
                 end_offset = m.span()[1]
@@ -113,43 +167,15 @@ class Timexy:
                 )
 
                 if span:
-                    # if overlapping entities due to multiple matched date patterns,
-                    # keep entity with longest span and dump others
-                    if any(t.ent_type for t in doc[span.start : span.end]):
-
-                        # ignore match if there is an overlapping entity of another type
-                        if (
-                            any(
-                                t.ent_type and t.ent_type_ != self.label
-                                for t in doc[span.start : span.end]
-                            )
-                            and not self.overwrite
-                        ):
-                            continue
-
-                        # Only look for overlaps +- 5 tokens to left and right as there are no
-                        # date patterns consisting of more than 5 tokens
-                        span_ents = doc[
-                            max(0, span.start - 5) : min(span.end + 5, len(doc))
-                        ].ents
-                        overlap_ents = [
-                            e
-                            for e in span_ents
-                            if span.start_char < e.end_char
-                            and span.end_char > e.start_char
-                        ]
-                        if all(len(e) <= len(span) for e in overlap_ents):
-                            doc.ents = [
-                                e for e in doc.ents if e not in overlap_ents
-                            ] + [span]
-                    else:
-                        doc.ents = list(doc.ents) + [span]
+                    spans.append(span)
                 else:
                     self.logger.error(
                         f"Span could not be retrieved for annotation of type {self.label} for datestring {datestring} with character offsets {m.span()}. Skipping the match."
                     )
+        return spans
 
-        # Duration matcher
+    def duration_matches(self, doc: Doc) -> List[Span]:
+        spans = []
         matches = self.matcher(doc)
         for match_id, start, end in matches:
 
@@ -165,15 +191,8 @@ class Timexy:
             if cnt:
                 kb_id = self._get_duration_kb_id(cnt, dur_unit)
                 ent = Span(doc, start, end, label=self.label, kb_id=kb_id)
-                try:
-                    doc.ents += (ent,)
-                except Exception:
-                    self.logger.error(
-                        f"Unable to set entity {ent.text} with offset ({ent.start},{ent.end}). Skipping this entity."
-                    )
-                    self.logger.error(traceback.format_exc())
-
-        return doc
+                spans.append(ent)
+        return spans
 
     def _replace_month_str(self, datestring: str, date_format: str) -> Tuple[str, str]:
         """
@@ -205,7 +224,7 @@ class Timexy:
             raise ValueError(f"Illegal argument for kb_id_type: {kb_id_type}")
 
     def _get_duration_kb_id(self, cnt: str, unit: str) -> str:
-        f'TIMEX3 type="DURATION" value="P{cnt}{unit}"'
+        return f'TIMEX3 type="DURATION" value="P{cnt}{unit}"'
 
     def to_disk(self, path: Union[str, Path], *, exclude: Iterable[str] = []) -> None:
         serialize = OrderedDict()
