@@ -41,4 +41,4 @@ for e in doc.ents:
 >>> six years     timexy    TIMEX3 type="DURATION" value="P6Y"
 ```
 ## Contributing
-Please refer to the contributing guidelines [here](https://github.com/paulrinckens/timexy/blob/main/CONTRIBUTINIG.md).
+Please refer to the contributing guidelines [here](https://github.com/paulrinckens/timexy/blob/main/CONTRIBUTING.md).
