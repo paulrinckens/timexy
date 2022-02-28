@@ -1,4 +1,13 @@
 # Timexy 🕙 📅
+
+<a href="https://pypi.org/project/timexy" target="_blank">
+    <img src="https://img.shields.io/pypi/v/timexy?color=%2334D058&label=pypi%20package" alt="Package version">
+</a>
+<a href="https://app.codecov.io/gh/paulrinckens/timexy" target="_blank">
+    <img src="https://img.shields.io/codecov/c/gh/paulrinckens/timexy" alt="Codecov">
+</a>
+
+
 A [spaCy](https://spacy.io/) [custom component](https://spacy.io/usage/processing-pipelines#custom-components) that extracts and normalizes dates and other temporal expressions.
 
 ## Features
