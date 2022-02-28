@@ -2,7 +2,7 @@ install:
 	poetry install
 
 test:
-	pytest tests
+	pytest tests --cov=timexy --cov-report=xml
 
 style:
 	black timexy tests

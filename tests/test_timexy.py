@@ -1,3 +1,5 @@
+import datetime as dt
+
 import pytest
 import spacy
 
@@ -42,7 +44,9 @@ def test_kb_id_timestamp() -> None:
     text = "Today is the 01.01.1990, the first day of the year 1990."
     doc = nlp(text)
     assert doc.ents
-    assert doc.ents[0].kb_id_ == "631148400.0"
+    assert doc.ents[0].kb_id_ == str(
+        dt.datetime.strptime("01.01.1990", "%d.%m.%Y").timestamp()
+    )
 
 
 def test_kb_id_timex3() -> None:
