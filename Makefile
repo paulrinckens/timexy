@@ -16,5 +16,8 @@ lint:
 build:
 	poetry build
 
+publish: build
+	poetry publish
+
 clean:
 	rm -rf dist
