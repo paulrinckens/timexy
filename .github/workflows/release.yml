@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  build_and_package:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Install and configure Poetry
+      uses: snok/install-poetry@v1
+      with:
+        virtualenvs-in-project: true
+    - name: Configure poetry PyPi token
+      env:
+        PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      run: poetry config pypi-token.pypi $PYPI_TOKEN
+    - name: Install dependencies
+      run: poetry install
+    - name: Publish to PyPi
+      run: poetry publish --build
