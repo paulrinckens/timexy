@@ -43,7 +43,7 @@ class Timexy:
         nlp: Language,
         name: str = "timexy",
         kb_id_type: str = "timex3",
-        label: str = "time",
+        label: str = "timexy",
         overwrite: bool = False,
     ) -> None:
         self.logger = logging.getLogger(__name__)
@@ -89,7 +89,7 @@ class Timexy:
                 )
 
     def __call__(self, doc: Doc) -> Doc:
-        spans_to_add = self.date_matches(doc) + self.duration_matches(doc)
+        spans_to_add = self._date_matches(doc) + self._duration_matches(doc)
 
         # Create entities for all gathered spans
         for span in spans_to_add:
@@ -139,7 +139,7 @@ class Timexy:
 
         return doc
 
-    def date_matches(self, doc: Doc) -> List[Span]:
+    def _date_matches(self, doc: Doc) -> List[Span]:
         spans = []
         for regex in self.date_regexes:
             for m in regex[0].finditer(doc.text):
@@ -174,7 +174,7 @@ class Timexy:
                     )
         return spans
 
-    def duration_matches(self, doc: Doc) -> List[Span]:
+    def _duration_matches(self, doc: Doc) -> List[Span]:
         spans = []
         matches = self.matcher(doc)
         for match_id, start, end in matches:

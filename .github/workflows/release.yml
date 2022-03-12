@@ -27,3 +27,5 @@ jobs:
       run: poetry install
     - name: Publish to PyPi
       run: poetry publish --build
+    - name: Create Github release
+      uses: softprops/action-gh-release@v1
