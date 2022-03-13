@@ -82,10 +82,20 @@ class Timexy:
                     key,
                     [
                         [
-                            {"LOWER": {"IN": self.timexy_lang.num_words}},
+                            {"LIKE_NUM": True, "OP": "+"},
+                            {"LOWER": {"IN": self.timexy_lang.modifiers}, "OP": "*"},
+                            {"LIKE_NUM": True, "OP": "*"},
+                            {"LOWER": {"IN": self.timexy_lang.modifiers}, "OP": "*"},
+                            {"LIKE_NUM": True, "OP": "*"},
+                            {"LOWER": {"IN": self.timexy_lang.modifiers}, "OP": "*"},
+                            {"LIKE_NUM": True, "OP": "*"},
+                            {"LOWER": {"IN": self.timexy_lang.modifiers}, "OP": "*"},
+                            {"LIKE_NUM": True, "OP": "*"},
+                            {"LOWER": {"IN": self.timexy_lang.modifiers}, "OP": "*"},
                             {"LOWER": val.lower()},
                         ]
                     ],
+                    greedy="LONGEST",
                 )
 
     def __call__(self, doc: Doc) -> Doc:
@@ -183,11 +193,17 @@ class Timexy:
                 continue
 
             dur_unit = doc.vocab.strings[match_id]
-            cnt_token = Span(doc, start, end)[0]
-            if cnt_token.is_digit:
+            cnt_token = Span(doc, start, end)[:-1]
+            if cnt_token.text.isnumeric():
                 cnt = cnt_token.text
             else:
-                cnt = self.timexy_lang.num_words.index(cnt_token.text.lower())
+                if (
+                    self.timexy_lang.lang != "en"
+                    and cnt_token.text.lower() not in self.timexy_lang.num_words
+                ):
+                    # TODO: remove this condition when word_to_digit is implemented for German & French
+                    continue
+                cnt = self.timexy_lang.word_to_digit(cnt_token.text.lower())
             if cnt:
                 kb_id = self._get_duration_kb_id(cnt, dur_unit)
                 ent = Span(doc, start, end, label=self.label, kb_id=kb_id)

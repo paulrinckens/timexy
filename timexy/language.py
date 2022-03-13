@@ -1,5 +1,5 @@
 import itertools
-from typing import Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple
 
 from pydantic import BaseModel
 
@@ -11,6 +11,8 @@ class Language(BaseModel):
     months: List[List[str]]
     units: Dict["str", List[str]]
     num_words: List[str]
+    modifiers: List[str]
+    word_to_digit: Callable[[str], str]
     rules: List[Rule] = []
 
     def get_month_re(self) -> str:

@@ -1,3 +1,5 @@
+from numerizer import numerize
+
 from ..language import Language
 from ..rule import Rule
 
@@ -10,27 +12,7 @@ en = Language(
         "D": ["day", "days"],
     },
     num_words=[
-        "zero",
-        "one",
-        "two",
-        "three",
-        "four",
-        "five",
-        "six",
-        "seven",
-        "eight",
-        "nine",
-        "ten",
-        "eleven",
-        "twelve",
-        "thirteen",
-        "fourteen",
-        "fifteen",
-        "sixteen",
-        "seventeen",
-        "eighteen",
-        "nineteen",
-        "twenty",
+        # TODO: remove when word_to_digit is implemented for German & French
     ],
     months=[
         ["January", "Jan"],
@@ -46,6 +28,8 @@ en = Language(
         ["November", "Nov"],
         ["December", "Dec"],
     ],
+    modifiers=["and"],
+    word_to_digit=lambda n: numerize(n),
 )
 
 en.rules = [
