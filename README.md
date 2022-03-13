@@ -12,7 +12,7 @@ A [spaCy](https://spacy.io/) [custom component](https://spacy.io/usage/processin
 
 ## Features
 - :boom: Extract dates and durations for various languages. See [here](#supported-languages) a list of currently supported languages
-- :boom: Normalize dates to timestamps or normalize dates and durations to the [TimeML TIMEX3 standard](http://www.timeml.org/publications/timeMLdocs/timeml_1.2.1.html#timex3)
+- :boom: Normalize dates to timestamps or normalize dates and durations to the [TimeML TIMEX3 standard](https://timeml.github.io/site/publications/timeMLdocs/timeml_1.2.1.html)
 
 ## Supported Languages
 - 🇩🇪 German
@@ -49,5 +49,23 @@ for e in doc.ents:
 >>> 10.10.2010    timexy    TIMEX3 type="DATE" value="2010-10-10T00:00:00"
 >>> six years     timexy    TIMEX3 type="DURATION" value="P6Y"
 ```
+
+### Normalization of temporal expressions
+Timexy allows the normalization of all temporal expressions to
+- TimeML Timex3 standard
+- timestamp
+
+The normalization is configured with the `kb_id_type` config parameter:
+```python
+config = {
+    "kb_id_type": "timex3",  # possible values: 'timex3'(default), 'timestamp'
+    "label": "timexy",       # default: 'timexy'
+    "overwrite": False       # default: False
+}
+nlp.add_pipe("timexy", config=config, before="ner")
+```
+
+> **_NOTE:_** Normalizing temporal expressions that are not concrete dates to timestamp is not viable. Therefore, all non-date temporal expressions are always normalized to timex3 regardless of the `kb_id_type` config.
+
 ## Contributing
 Please refer to the contributing guidelines [here](https://github.com/paulrinckens/timexy/blob/main/CONTRIBUTING.md).
