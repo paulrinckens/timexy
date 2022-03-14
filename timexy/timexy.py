@@ -82,16 +82,8 @@ class Timexy:
                     key,
                     [
                         [
-                            {"LIKE_NUM": True, "OP": "+"},
-                            {"LOWER": {"IN": self.timexy_lang.modifiers}, "OP": "*"},
-                            {"LIKE_NUM": True, "OP": "*"},
-                            {"LOWER": {"IN": self.timexy_lang.modifiers}, "OP": "*"},
-                            {"LIKE_NUM": True, "OP": "*"},
-                            {"LOWER": {"IN": self.timexy_lang.modifiers}, "OP": "*"},
-                            {"LIKE_NUM": True, "OP": "*"},
-                            {"LOWER": {"IN": self.timexy_lang.modifiers}, "OP": "*"},
-                            {"LIKE_NUM": True, "OP": "*"},
-                            {"LOWER": {"IN": self.timexy_lang.modifiers}, "OP": "*"},
+                            {"LIKE_NUM": True},
+                            {"OP": "+"},
                             {"LOWER": val.lower()},
                         ]
                     ],
@@ -113,6 +105,9 @@ class Timexy:
                 and not self.overwrite
             ):
                 continue
+
+            # TODO: prefer rule-based date matches before Matcher durations
+            # failing example: "Today is Feb 1990, six years after Feb 1984."
 
             # if overlapping entities due to multiple matched date patterns,
             # keep entity with longest span and dump others

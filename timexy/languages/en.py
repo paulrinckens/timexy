@@ -28,7 +28,6 @@ en = Language(
         ["November", "Nov"],
         ["December", "Dec"],
     ],
-    modifiers=["and"],
     word_to_digit=lambda n: numerize(n),
 )
 

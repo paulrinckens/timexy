@@ -46,7 +46,6 @@ fr = Language(
         ["novembre", "nov"],
         ["décembre", "déc"],
     ],
-    modifiers=[],
     word_to_digit=lambda n: fr.num_words.index(n),
 )
 fr.rules = [

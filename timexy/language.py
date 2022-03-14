@@ -11,7 +11,6 @@ class Language(BaseModel):
     months: List[List[str]]
     units: Dict["str", List[str]]
     num_words: List[str]
-    modifiers: List[str]
     word_to_digit: Callable[[str], str]
     rules: List[Rule] = []
 
