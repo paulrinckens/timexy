@@ -8,6 +8,7 @@ en = Language(
         "M": ["month", "months"],
         "W": ["week", "weeks"],
         "D": ["day", "days"],
+        "H": ["hour", "hours"],
     },
     num_words=[
         "zero",

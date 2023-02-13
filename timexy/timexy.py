@@ -75,7 +75,7 @@ class Timexy:
             for val in vals:
                 self.matcher.add(
                     key,
-                    [[{"IS_DIGIT": True}, {"TEXT": val}]],
+                    [[{"IS_DIGIT": True}, {"TEXT": "-", "OP": "?"}, {"TEXT": val}]],
                 )
 
                 self.matcher.add(
@@ -83,6 +83,7 @@ class Timexy:
                     [
                         [
                             {"LOWER": {"IN": self.timexy_lang.num_words}},
+                            {"TEXT": "-", "OP": "?"},
                             {"LOWER": val.lower()},
                         ]
                     ],
